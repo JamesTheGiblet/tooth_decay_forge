@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#00796b">
+    <title>Generic Dentists | Preventative Care Simulator</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js" charset="utf-8" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+    <style>
+        :root {
+            /* Generic Dentists Palette */
+            --primary-teal: #00796b;
+            --light-teal: #4db6ac;
+            --deep-teal: #004d40;
+            --accent-gold: #ffb300;
+            
+            /* Status Colors */
+            --healthy-green: #2e7d32;
+            --warning-orange: #f57c00;
+            --danger-red: #c62828;
+            
+            /* UI Colors */
+            --bg-color: #f0f4f4;
+            --card-bg: #ffffff;
+            --text-dark: #263238;
+            --text-muted: #546e7a;
+            
+            --card-shadow: 0 4px 20px rgba(0, 77, 64, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            line-height: 1.5;
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* --- Branding Header --- */
+        .brand-header {
+            background: linear-gradient(135deg, var(--deep-teal) 0%, var(--primary-teal) 100%);
+            color: white;
+            padding: 24px 20px 60px 20px; /* Extra bottom padding for overlap */
+            border-radius: 0 0 30px 30px;
+            position: relative;
+            margin-bottom: -40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .brand-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-area h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .logo-area span {
+            font-weight: 300;
+            opacity: 0.9;
+            font-size: 0.9rem;
+            display: block;
+        }
+
+        .contact-btn-mini {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: white;
+            text-decoration: none;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px;
+            border-radius: var(--radius);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stat-val { font-size: 1.2rem; font-weight: 700; display: block; }
+        .stat-lbl { font-size: 0.75rem; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        @media (max-width: 600px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* --- Main Layout --- */
+        .main-content {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 900px) {
+            .main-content { grid-template-columns: 2fr 1fr; }
+        }
+
+        /* --- Cards --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--deep-teal);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- Controls --- */
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-item label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .control-val { color: var(--primary-teal); font-weight: 700; }
+
+        input[type=range] {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-teal);
+            border: 2px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+
+        /* --- Visualizations --- */
+        .ph-strip {
+            display: flex;
+            height: 50px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            font-size: 0.75rem;
+            color: white;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .ph-seg { flex: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+
+        .chart-box { height: 250px; width: 100%; }
+        #chart-bacteria { cursor: pointer; }
+
+        /* --- Comparisons --- */
+        .scenario-list { display: flex; flex-direction: column; gap: 12px; }
+        .scenario-item {
+            padding: 16px;
+            border-radius: 12px;
+            background: #f8fcfc;
+            border-left: 4px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sc-current { border-color: var(--primary-teal); background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .sc-optimal { border-color: var(--healthy-green); }
+        .sc-risk { border-color: var(--danger-red); }
+
+        .sc-meta { font-size: 0.85rem; color: var(--text-muted); }
+        .sc-cost { font-weight: 700; font-size: 1.1rem; color: var(--text-dark); }
+
+        /* --- Buttons --- */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: var(--primary-teal); color: white; }
+        .btn-primary:hover { background: var(--deep-teal); transform: translateY(-2px); }
+        
+        .btn-outline { background: transparent; border: 2px solid var(--primary-teal); color: var(--primary-teal); }
+        .btn-book { background: var(--accent-gold); color: var(--deep-teal); }
+
+        /* --- Footer Nav --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.75rem;
+            gap: 4px;
+        }
+        .nav-link.active { color: var(--primary-teal); }
+        .nav-link i { font-size: 1.2rem; }
+
+        /* --- Modals --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,30,30,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-box {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+        .close-modal {
+            position: absolute; top: 15px; right: 20px;
+            font-size: 1.5rem; cursor: pointer; color: #999;
+        }
+
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Utilities */
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .bg-green { background: #e8f5e9; color: var(--healthy-green); }
+        .bg-red { background: #ffebee; color: var(--danger-red); }
+        .bg-orange { background: #fff3e0; color: var(--warning-orange); }
+
+        /* --- Dark Mode Overrides --- */
+        body.dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-dark: #eceff1;
+            --text-muted: #b0bec5;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        body.dark-mode .scenario-item { background: #263238; border-left-color: #546e7a; }
+        body.dark-mode .sc-current { background: #37474f; }
+        body.dark-mode .modal-box { background: #1e1e1e; color: #eceff1; }
+        body.dark-mode .bottom-nav { background: #1e1e1e; border-top: 1px solid #333; }
+        body.dark-mode .stat-card { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.05); }
+        body.dark-mode input[type=range] { background: #424242; }
+
+        /* --- Teeth Visualization --- */
+        .teeth-card-body { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 10px 0; }
+        .dental-arch { display: flex; gap: 2px; justify-content: center; }
+        .tooth-container { width: 20px; height: 28px; position: relative; transition: transform 0.2s; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1)); }
+        .tooth-container:hover { transform: scale(1.5); z-index: 10; }
+        @media (max-width: 380px) { .tooth-container { width: 15px; height: 22px; } }
+
+        /* --- Kids Mode --- */
+        body.kids-mode {
+            --primary-teal: #FF4081;
+            --deep-teal: #C2185B;
+            --accent-gold: #FFD740;
+            --bg-color: #FFF8E1;
+            --card-bg: #FFFFFF;
+            --text-dark: #4E342E;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            background-image: radial-gradient(#FFE0B2 20%, transparent 20%), radial-gradient(#FFE0B2 20%, transparent 20%);
+            background-position: 0 0, 50px 50px;
+            background-size: 100px 100px;
+        }
+        body.kids-mode .brand-header {
+            background: linear-gradient(135deg, #FF4081 0%, #F50057 100%);
+            border-radius: 0 0 50% 50% / 20px;
+        }
+        body.kids-mode .card {
+            border: 4px solid #FF4081;
+            border-radius: 30px;
+            box-shadow: 8px 8px 0px rgba(255, 64, 129, 0.2);
+        }
+        body.kids-mode .btn-primary {
+            background: #FF4081;
+            border-radius: 25px;
+            box-shadow: 0 4px 0 #C2185B;
+        }
+        body.kids-mode .btn-primary:active { transform: translateY(4px); box-shadow: none; }
+        
+        /* Toggle Visibility */
+        .group-kids { display: none; }
+        body.kids-mode .group-kids { display: block; }
+        body.kids-mode .group-adult { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header class="brand-header">
+        <div class="container">
+            <div class="brand-top">
+                <div class="logo-area">
+                    <h1>Generic Dentists</h1>
+                    <span>Dental Practice & Implant Centre</span>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button onclick="toggleDarkMode()" class="contact-btn-mini" style="border:none; cursor:pointer;" aria-label="Toggle Dark Mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button onclick="toggleKidsMode()" class="contact-btn-mini" style="border:none; cursor:pointer; background:var(--accent-gold); color:var(--text-dark);" aria-label="Toggle Kids Mode">
+                        <i class="fas fa-child"></i> Kids
+                    </button>
+                    <a href="#" onclick="openModal('contact')" class="contact-btn-mini">
+                        <i class="fas fa-phone"></i> Contact
+                    </a>
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <span class="stat-val" id="disp-enamel">92%</span>
+                    <span class="stat-lbl">Enamel</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-val" id="disp-risk" style="color: var(--accent-gold)">Low</span>
+                    <span class="stat-lbl">Caries Risk</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-val" id="disp-cavities">0</span>
+                    <span class="stat-lbl">Est. Cavities</span>
+                </div>
+                <div class="stat-card group-adult">
+                    <span class="stat-val" id="disp-white">B2</span>
+                    <span class="stat-lbl">Whiteness</span>
+                </div>
+                <div class="stat-card group-adult">
+                    <span class="stat-val" id="disp-sens">None</span>
+                    <span class="stat-lbl">Sensitivity</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-val" id="disp-gums">Healthy</span>
+                    <span class="stat-lbl">Gum Health</span>
+                </div>
+                <div class="stat-card group-adult">
+                    <span class="stat-val" id="disp-savings">£13k</span>
+                    <span class="stat-lbl">Savings</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container main-content">
+        
+        <section class="card">
+            <div class="card-head">
+                <div class="card-title">
+                    <i class="fas fa-sliders-h"></i> 
+                    <span class="group-adult">Patient Lifestyle Inputs</span>
+                    <span class="group-kids">My Habits</span>
+                </div>
+                <span class="badge bg-green">Live Model</span>
+            </div>
+
+            <div class="control-grid">
+                <div class="control-item">
+                    <label>
+                        <span class="group-adult">Brushing Frequency</span><span class="group-kids">Brushing Teeth</span> 
+                        <span class="control-val" id="val-brush">2x/day</span>
+                    </label>
+                    <input type="range" id="rng-brush" min="0" max="3" value="2" step="1">
+                </div>
+                <div class="control-item">
+                    <label>
+                        <span class="group-adult">Sugar Intake</span><span class="group-kids">Sugary Drinks</span>
+                        <span class="control-val" id="val-sugar">Moderate</span>
+                    </label>
+                    <input type="range" id="rng-sugar" min="0" max="4" value="2" step="1">
+                </div>
+                <div class="control-item">
+                    <label>
+                        <span class="group-adult">Sweets/Snacks</span><span class="group-kids">Candy & Snacks</span>
+                        <span class="control-val" id="val-sweets">Occasional</span>
+                    </label>
+                    <input type="range" id="rng-sweets" min="0" max="3" value="1" step="1">
+                </div>
+                <div class="control-item group-adult">
+                    <label>Coffee/Tea <span class="control-val" id="val-coffee">1-2 Cups</span></label>
+                    <input type="range" id="rng-coffee" min="0" max="3" value="1" step="1">
+                </div>
+                <div class="control-item group-adult">
+                    <label>Fluoride Usage <span class="control-val" id="val-fluoride">Yes</span></label>
+                    <input type="range" id="rng-fluoride" min="0" max="1" value="1" step="1">
+                </div>
+                <div class="control-item">
+                    <label>
+                        <span class="group-adult">Flossing</span><span class="group-kids">Flossing</span>
+                        <span class="control-val" id="val-floss">Never</span>
+                    </label>
+                    <input type="range" id="rng-floss" min="0" max="2" value="0" step="1">
+                </div>
+                <div class="control-item group-adult">
+                    <label>Whitening <span class="control-val" id="val-whitening">None</span></label>
+                    <input type="range" id="rng-whitening" min="0" max="3" value="0" step="1">
+                </div>
+                <div class="control-item group-adult">
+                    <label>Smoking <span class="control-val" id="val-smoking">No</span></label>
+                    <input type="range" id="rng-smoking" min="0" max="1" value="0" step="1">
+                </div>
+                <div class="control-item group-adult">
+                    <label>Projection (Years) <span class="control-val" id="val-time">5 Years</span></label>
+                    <input type="range" id="rng-time" min="1" max="20" value="5" step="1">
+                </div>
+            </div>
+
+            <div id="alert-sensitivity" class="group-adult" style="display:none; background: #ffebee; color: #c62828; padding: 10px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; align-items: center; gap: 10px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><strong>Warning:</strong> Aggressive whitening may cause severe tooth sensitivity.</span>
+            </div>
+
+            <div class="ph-strip group-adult">
+                <div class="ph-seg" style="background:#4db6ac; flex:2">AM<br>7.2</div>
+                <div class="ph-seg" style="background:#ffb74d; flex:1">Coffee<br>5.1</div>
+                <div class="ph-seg" style="background:#4db6ac; flex:2">Work<br>6.9</div>
+                <div class="ph-seg" style="background:#ef5350; flex:1">Lunch<br>4.2</div>
+                <div class="ph-seg" style="background:#4db6ac; flex:3">PM<br>7.0</div>
+            </div>
+
+            <div id="chart-decay" class="chart-box"></div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:20px;">
+                <button class="btn btn-primary" onclick="sim.runFullSimulation()">
+                    <i class="fas fa-calculator"></i> <span class="group-adult">Update Projection</span><span class="group-kids">Check My Teeth!</span>
+                </button>
+                <button class="btn btn-outline" onclick="openModal('report')">
+                    <i class="fas fa-file-medical-alt"></i> Patient Report
+                </button>
+            </div>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title"><i class="fas fa-tooth"></i> Dental Health Map</div>
+                    <span id="tooth-status" class="badge bg-green">Healthy</span>
+                </div>
+                <div id="tooth-details" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; text-align: center;">
+                    No cavities detected
+                </div>
+                <div class="teeth-card-body">
+                    <div class="dental-arch" id="arch-upper"></div>
+                    <div class="dental-arch" id="arch-lower"></div>
+                </div>
+                <div style="display:flex; justify-content:center; gap:15px; margin-top:10px; font-size:0.7rem; color:#888;">
+                    <div style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#fff; border:1px solid #ccc; border-radius:50%"></span> Healthy</div>
+                    <div style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:#ffcc80; border-radius:50%"></span> Stained</div>
+                    <div style="display:flex; align-items:center; gap:4px;"><span style="width:8px; height:8px; background:brown; border-radius:50%"></span> Decay</div>
+                </div>
+            </div>
+
+            <!-- Kids Score Card -->
+            <div class="card group-kids" style="text-align:center; background:#E1F5FE; border-color:#03A9F4;">
+                <div class="card-head" style="border-bottom-color:rgba(0,0,0,0.1)">
+                    <div class="card-title" style="color:#0277BD"><i class="fas fa-star"></i> Super Smile Score</div>
+                </div>
+                <div style="font-size:4rem; font-weight:800; color:#FFD740; text-shadow:2px 2px 0 #FF6F00; margin:10px 0;" id="kids-score-val">
+                    92
+                </div>
+                <div id="kids-feedback" style="font-size:1.2rem; font-weight:bold; color:#0277BD; margin-bottom:15px;">
+                    Super Hero!
+                </div>
+                <p style="font-size:0.9rem; color:#01579B;">Keep brushing twice a day to keep the Sugar Bugs away!</p>
+            </div>
+
+            <div class="card group-adult">
+                <div class="card-head">
+                    <div class="card-title"><i class="fas fa-pound-sign"></i> 10-Year Treatment Cost</div>
+                </div>
+                
+                <div class="scenario-list">
+                    <div class="scenario-item sc-current">
+                        <div>
+                            <div style="font-weight:600;">Your Projection</div>
+                            <div class="sc-meta">Based on inputs</div>
+                        </div>
+                        <div class="sc-cost" id="cost-current">£4,110</div>
+                    </div>
+                    
+                    <div class="scenario-item sc-risk">
+                        <div>
+                            <div style="font-weight:600;">Reactive Care</div>
+                            <div class="sc-meta">Pain-based treatment</div>
+                        </div>
+                        <div class="sc-cost">£12,500</div>
+                    </div>
+
+                    <div class="scenario-item sc-optimal">
+                        <div>
+                            <div style="font-weight:600;">Prevention Plan</div>
+                            <div class="sc-meta">Optimal Hygiene</div>
+                        </div>
+                        <div class="sc-cost" style="color:var(--healthy-green)">£2,700</div>
+                    </div>
+                </div>
+                
+                <p style="font-size:0.8rem; color:#666; margin-top:15px; text-align:center;">
+                    *Estimates based on private composite fillings, RCTs, and crown replacements.
+                </p>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title"><i class="fas fa-bacteria"></i> <span class="group-adult">Biofilm Activity</span><span class="group-kids">Germs & Bugs</span></div>
+                </div>
+                <div id="chart-bacteria" style="height: 180px; width:100%"></div>
+                
+                <div style="margin-top:15px; padding:10px; background:#e0f2f1; border-radius:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="font-size:0.85rem; font-weight:500; color:var(--deep-teal)">
+                        Time since brushing: <span id="lbl-brush-time">3.2h</span>
+                    </div>
+                    <button class="btn btn-primary" style="width:auto; padding:8px 15px; font-size:0.8rem;" onclick="sim.simulateBrushAction()">
+                        Brush Now
+                    </button>
+                </div>
+            </div>
+
+        </section>
+    </div>
+
+    <div class="modal-overlay" id="contactModal">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 style="color:var(--primary-teal); margin-bottom:15px;">Generic Dentists</h2>
+            <p style="margin-bottom:20px; color:#666;">Located in Your Local Area. We specialize in preventative and restorative dentistry.</p>
+            
+            <a href="tel:01869232000" class="btn btn-outline" style="margin-bottom:10px">
+                <i class="fas fa-phone"></i> 01869 232 000
+            </a>
+            <button class="btn btn-book">
+                <i class="fas fa-calendar-check"></i> Book Online
+            </button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="reportModal">
+        <div class="modal-box">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div style="text-align:center; margin-bottom:20px;">
+                <i class="fas fa-check-circle" style="font-size:3rem; color:var(--primary-teal);"></i>
+            </div>
+            <h2 style="text-align:center;">Report Generated</h2>
+            <p style="text-align:center; color:#666; margin:10px 0 20px 0;">
+                Your decay kinetics simulation has been saved. Would you like to send this to our hygienist team?
+            </p>
+            <button class="btn btn-primary" onclick="closeModal()">Send to Practice</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-link active"><i class="fas fa-chart-pie"></i> Simulator</a>
+        <a href="#" class="nav-link"><i class="fas fa-user-md"></i> My Plan</a>
+        <a href="#" class="nav-link" onclick="openModal('contact')"><i class="fas fa-calendar-alt"></i> Book</a>
+    </nav>
+
+    <script>
+        // Generic Dentists Logic Engine
+        class DentalSimulator {
+            constructor() {
+                // State
+                this.state = {
+                    enamel: 92,
+                    brushFreq: 2,
+                    sugarLevel: 2, // 0-4
+                    sweets: 1, // 0-3
+                    coffee: 1, // 0-3
+                    fluoride: 1,
+                    flossing: 0, // 0-2
+                    whitening: 0, // 0-3
+                    smoking: 0, // 0-1
+                    years: 5,
+                    bacteriaLoad: 1000,
+                    bacteriaDoubling: 2.8 // hours
+                };
+
+                this.dom = {
+                    brush: document.getElementById('rng-brush'),
+                    sugar: document.getElementById('rng-sugar'),
+                    sweets: document.getElementById('rng-sweets'),
+                    coffee: document.getElementById('rng-coffee'),
+                    fluoride: document.getElementById('rng-fluoride'),
+                    floss: document.getElementById('rng-floss'),
+                    whitening: document.getElementById('rng-whitening'),
+                    smoking: document.getElementById('rng-smoking'),
+                    time: document.getElementById('rng-time'),
+                    lblBrush: document.getElementById('val-brush'),
+                    lblSugar: document.getElementById('val-sugar'),
+                    lblSweets: document.getElementById('val-sweets'),
+                    lblCoffee: document.getElementById('val-coffee'),
+                    lblFluoride: document.getElementById('val-fluoride'),
+                    lblFloss: document.getElementById('val-floss'),
+                    lblWhitening: document.getElementById('val-whitening'),
+                    lblSmoking: document.getElementById('val-smoking'),
+                    lblTime: document.getElementById('val-time')
+                };
+
+                this.initListeners();
+                this.renderTeeth();
+                this.runFullSimulation();
+                this.initBacteriaChart();
+            }
+
+            initListeners() {
+                const update = () => this.runFullSimulation();
+                
+                this.dom.brush.addEventListener('input', (e) => {
+                    const vals = ['Never', '1x/day', '2x/day', '3x+'];
+                    this.dom.lblBrush.innerText = vals[e.target.value];
+                    this.state.brushFreq = parseInt(e.target.value);
+                    update();
+                });
+
+                this.dom.sugar.addEventListener('input', (e) => {
+                    const vals = ['None', 'Low', 'Moderate', 'High', 'Very High'];
+                    this.dom.lblSugar.innerText = vals[e.target.value];
+                    this.state.sugarLevel = parseInt(e.target.value);
+                    update();
+                });
+
+                this.dom.sweets.addEventListener('input', (e) => {
+                    const vals = ['Rarely', 'Occasional', 'Daily', 'Multiple/Day'];
+                    this.dom.lblSweets.innerText = vals[e.target.value];
+                    this.state.sweets = parseInt(e.target.value);
+                    update();
+                });
+
+                this.dom.coffee.addEventListener('input', (e) => {
+                    const vals = ['None', '1-2 Cups', '3-4 Cups', '5+ Cups'];
+                    this.dom.lblCoffee.innerText = vals[e.target.value];
+                    this.state.coffee = parseInt(e.target.value);
+                    update();
+                });
+
+                this.dom.fluoride.addEventListener('input', (e) => {
+                    this.dom.lblFluoride.innerText = e.target.value == 1 ? 'Yes' : 'No';
+                    this.state.fluoride = parseInt(e.target.value);
+                    update();
+                });
+
+                this.dom.floss.addEventListener('input', (e) => {
+                    const vals = ['Never', 'Sometimes', 'Daily'];
+                    this.dom.lblFloss.innerText = vals[e.target.value];
+                    this.state.flossing = parseInt(e.target.value);
+                    update();
+                });
+
+                this.dom.whitening.addEventListener('input', (e) => {
+                    const vals = ['None', 'Occasional', 'Regular', 'Aggressive'];
+                    this.dom.lblWhitening.innerText = vals[e.target.value];
+                    this.state.whitening = parseInt(e.target.value);
+                    update();
+                });
+
+                this.dom.smoking.addEventListener('input', (e) => {
+                    this.dom.lblSmoking.innerText = e.target.value == 1 ? 'Yes' : 'No';
+                    this.state.smoking = parseInt(e.target.value);
+                    update();
+                });
+
+                this.dom.time.addEventListener('input', (e) => {
+                    this.dom.lblTime.innerText = e.target.value + ' Years';
+                    this.state.years = parseInt(e.target.value);
+                    update();
+                });
+            }
+
+            calculateDecayCurve() {
+                // Decay Logic: 
+                // Base loss minus brushing/fluoride protection plus sugar damage
+                const protection = (this.state.brushFreq * 1.5) + (this.state.fluoride * 4);
+                // Whitening adds to attack (erosion)
+                const whiteningErosion = this.state.whitening * 1.2;
+                const coffeeAcid = this.state.coffee * 0.5;
+                const sweetsAcid = this.state.sweets * 2.0;
+                const attack = (this.state.sugarLevel * 2.5) + sweetsAcid + whiteningErosion + coffeeAcid;
+                const netChangePerYear = (attack - protection) * 0.8; 
+
+                let currentHealth = 92; // Starting baseline (average adult)
+                let currentWhiteness = 60; // Baseline whiteness score
+                let currentGumHealth = 100; // Baseline gum health
+                let x = [], y = [], riskY = [], whiteY = [];
+
+                const months = this.state.years * 12;
+                
+                for(let i=0; i<=months; i+=3) { // Quarterly steps
+                    x.push(i);
+                    // Non-linear decay acceleration if hygiene is poor
+                    let acceleration = (currentHealth < 70) ? 1.1 : 1.0;
+                    
+                    let monthlyChange = (netChangePerYear / 12) * acceleration;
+                    // Natural aging attrition
+                    monthlyChange += 0.02; 
+
+                    currentHealth -= monthlyChange;
+                    currentHealth = Math.min(100, Math.max(0, currentHealth));
+                    y.push(currentHealth);
+
+                    // Risk is inverse of health, amplified
+                    riskY.push(Math.min(100, (100 - currentHealth) * 1.5));
+
+                    // Whiteness Logic
+                    // Increases with whitening, decreases with sugar (staining)
+                    let whiteChange = (this.state.whitening * 0.8) - (this.state.sugarLevel * 0.15) - (this.state.smoking * 0.8) - (this.state.coffee * 0.4);
+                    currentWhiteness += whiteChange;
+                    currentWhiteness = Math.min(100, Math.max(20, currentWhiteness));
+                    whiteY.push(currentWhiteness);
+
+                    // Gum Health Logic
+                    // Degrades significantly if brushing < 2x/day
+                    let gumChange = 0;
+                    if (this.state.brushFreq === 0) gumChange = -3.0;
+                    else if (this.state.brushFreq === 1) gumChange = -1.0;
+                    else if (this.state.brushFreq === 2) gumChange = 0.2; // Maintenance
+                    else gumChange = 0.5; // Improvement
+                    
+                    // Flossing Impact
+                    if (this.state.flossing === 0) gumChange -= 0.2; // Penalty
+                    else if (this.state.flossing === 1) gumChange += 0.1;
+                    else if (this.state.flossing === 2) gumChange += 0.4; // Bonus
+
+                    // Smoking Impact
+                    if (this.state.smoking === 1) gumChange -= 1.2; // Severe Penalty
+
+                    // Sweets Impact (Sugar feeds bacteria)
+                    if (this.state.sweets >= 2) gumChange -= 0.3;
+
+                    currentGumHealth += gumChange;
+                    currentGumHealth = Math.min(100, Math.max(0, currentGumHealth));
+                }
+
+                return { x, y, riskY, whiteY, finalHealth: currentHealth, finalWhiteness: currentWhiteness, finalGumHealth: currentGumHealth };
+            }
+
+            runFullSimulation() {
+                const data = this.calculateDecayCurve();
+                
+                // Update Dashboard Numbers
+                document.getElementById('disp-enamel').innerText = Math.round(data.finalHealth) + "%";
+                
+                // Est Cavities
+                const cavities = Math.max(0, Math.floor((90 - data.finalHealth) / 15));
+                document.getElementById('disp-cavities').innerText = cavities;
+                document.getElementById('disp-cavities').style.color = cavities > 0 ? "var(--danger-red)" : "var(--text-dark)";
+
+                // Whiteness Display (Convert score to Shade)
+                let shade = "A3";
+                if(data.finalWhiteness > 90) shade = "B1 (Bright)";
+                else if(data.finalWhiteness > 80) shade = "A1";
+                else if(data.finalWhiteness > 70) shade = "A2";
+                else if(data.finalWhiteness > 60) shade = "A3";
+                else shade = "A4 (Dark)";
+                document.getElementById('disp-white').innerText = shade;
+                
+                // Sensitivity Logic
+                const sensEl = document.getElementById('disp-sens');
+                const alertEl = document.getElementById('alert-sensitivity');
+                
+                let sensLevel = "None";
+                let sensColor = "var(--text-dark)";
+                
+                if (this.state.whitening >= 3) {
+                    sensLevel = "High";
+                    sensColor = "var(--danger-red)";
+                    alertEl.style.display = 'flex';
+                } else if (this.state.whitening === 2) {
+                    sensLevel = "Med";
+                    sensColor = "var(--warning-orange)";
+                    alertEl.style.display = 'none';
+                } else if (this.state.whitening === 1) {
+                    sensLevel = "Low";
+                    alertEl.style.display = 'none';
+                } else {
+                    alertEl.style.display = 'none';
+                }
+                
+                sensEl.innerText = sensLevel;
+                sensEl.style.color = sensColor;
+
+                // Gum Health Display
+                const gumEl = document.getElementById('disp-gums');
+                let gumText = "Healthy";
+                let gumColor = "var(--healthy-green)";
+                
+                if (data.finalGumHealth < 50) {
+                    gumText = "Periodontitis";
+                    gumColor = "var(--danger-red)";
+                } else if (data.finalGumHealth < 80) {
+                    gumText = "Gingivitis";
+                    gumColor = "var(--warning-orange)";
+                }
+                gumEl.innerText = gumText;
+                gumEl.style.color = gumColor;
+
+                const riskEl = document.getElementById('disp-risk');
+                const lastRisk = data.riskY[data.riskY.length-1];
+                
+                if(lastRisk < 20) { riskEl.innerText = "Low"; riskEl.style.color = "var(--healthy-green)"; }
+                else if(lastRisk < 50) { riskEl.innerText = "Medium"; riskEl.style.color = "var(--warning-orange)"; }
+                else { riskEl.innerText = "High"; riskEl.style.color = "var(--danger-red)"; }
+
+                // Update Cost Calculation based on risk
+                const baseCost = 2700; // Optimal care
+                const riskCost = Math.round(baseCost + (lastRisk * 120)); 
+                document.getElementById('cost-current').innerText = "£" + riskCost.toLocaleString();
+                
+                // Kids Mode Score
+                const kidsScore = Math.round(data.finalHealth);
+                document.getElementById('kids-score-val').innerText = kidsScore;
+                const kidsFeedback = document.getElementById('kids-feedback');
+                if(kidsScore > 90) { kidsFeedback.innerText = "Super Hero!"; kidsFeedback.style.color = "#00C853"; }
+                else if(kidsScore > 75) { kidsFeedback.innerText = "Great Job!"; kidsFeedback.style.color = "#0091EA"; }
+                else if(kidsScore > 50) { kidsFeedback.innerText = "Keep Brushing!"; kidsFeedback.style.color = "#FFAB00"; }
+                else { kidsFeedback.innerText = "Uh oh, Cavities!"; kidsFeedback.style.color = "#D50000"; }
+
+                // Update Savings (Worst Case - Current)
+                const savings = 12500 - riskCost;
+                document.getElementById('disp-savings').innerText = "£" + (savings > 0 ? (savings/1000).toFixed(1) + "k" : "0");
+
+                const isDark = document.body.classList.contains('dark-mode');
+                const textColor = isDark ? '#eceff1' : '#263238';
+
+                // Plot Decay Chart
+                Plotly.react('chart-decay', [
+                    {
+                        x: data.x, y: data.y,
+                        mode: 'lines', name: 'Enamel Density',
+                        line: { color: '#00796b', width: 3 },
+                        fill: 'tozeroy', fillcolor: 'rgba(0, 121, 107, 0.1)'
+                    },
+                    {
+                        x: data.x, y: data.riskY,
+                        mode: 'lines', name: 'Caries Risk',
+                        yaxis: 'y2',
+                        line: { color: '#c62828', width: 2, dash: 'dot' }
+                    },
+                    {
+                        x: data.x, y: data.whiteY,
+                        mode: 'lines', name: 'Whiteness',
+                        line: { color: '#78909c', width: 2 }
+                    }
+                ], {
+                    margin: { t: 30, r: 40, l: 40, b: 30 },
+                    height: 250,
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    font: { color: textColor },
+                    showlegend: true,
+                    legend: { orientation: 'h', y: 1.1 },
+                    xaxis: { title: 'Months', gridcolor: isDark ? '#444' : '#eee' },
+                    yaxis: { range: [0, 100], title: 'Health %', gridcolor: isDark ? '#444' : '#eee' },
+                    yaxis2: { overlaying: 'y', side: 'right', range: [0, 100], showgrid: false, tickfont: { color: '#c62828' } }
+                }, { displayModeBar: false });
+
+                // --- Oral Health Visualization Logic ---
+                this.state.enamel = data.finalHealth;
+                this.state.whiteningScore = data.finalWhiteness;
+                this.updateTeethVisualization();
+            }
+
+            renderTeeth() {
+                const createTooth = (id) => `
+                    <div class="tooth-container" data-tooth="${id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 34" width="100%" height="100%">
+                            <path class="tooth-shape" d="M4,4 Q12,0 20,4 L20,24 Q12,34 4,24 Z" fill="#fff" stroke="#90a4ae" stroke-width="1.5"/>
+                            <circle class="cavity-spot" cx="12" cy="18" r="0" fill="rgba(139,69,19,0)" />
+                        </svg>
+                    </div>`;
+                const upper = [18,17,16,15,14,13,12,11, 21,22,23,24,25,26,27,28];
+                const lower = [48,47,46,45,44,43,42,41, 31,32,33,34,35,36,37,38];
+                const upperEl = document.getElementById('arch-upper');
+                const lowerEl = document.getElementById('arch-lower');
+                if(upperEl && lowerEl) {
+                    upperEl.innerHTML = upper.map(id => createTooth(id)).join('');
+                    lowerEl.innerHTML = lower.map(id => createTooth(id)).join('');
+                }
+            }
+
+            // Add this method to your DentalSimulator class
+            updateTeethVisualization() {
+                const cavities = Math.max(0, Math.floor((90 - this.state.enamel) / 15));
+                const whitenessScore = this.state.whiteningScore || 60;
+                // Calculate yellowing intensity (0-1)
+                const yellowIntensity = Math.max(0, 1 - (whitenessScore / 100));
+                // Calculate decay intensity (0-1)
+                const decayIntensity = Math.min(1, cavities / 8);
+                // Update status badge
+                const statusEl = document.getElementById('tooth-status');
+                const detailsEl = document.getElementById('tooth-details');
+                
+                if (!statusEl || !detailsEl) return;
+
+                if (cavities === 0 && yellowIntensity < 0.3) {
+                    statusEl.innerText = "Healthy";
+                    statusEl.className = "badge bg-green";
+                    detailsEl.innerText = "No cavities detected";
+                } else if (cavities > 0 && cavities <= 2) {
+                    statusEl.innerText = "Early Decay";
+                    statusEl.className = "badge bg-orange";
+                    detailsEl.innerText = `${cavities} potential cavity site${cavities > 1 ? 's' : ''}`;
+                } else if (cavities > 2) {
+                    statusEl.innerText = "High Risk";
+                    statusEl.className = "badge bg-red";
+                    detailsEl.innerText = `${cavities} cavity sites - consult dentist`;
+                } else if (yellowIntensity >= 0.3) {
+                    statusEl.innerText = "Staining";
+                    statusEl.className = "badge bg-orange";
+                    detailsEl.innerText = "Visible discoloration";
+                }
+                // Update all teeth
+                document.querySelectorAll('.tooth-container').forEach(container => {
+                    const svg = container.querySelector('svg');
+                    const toothShape = svg.querySelector('.tooth-shape');
+                    const cavitySpot = svg.querySelector('.cavity-spot');
+                    const toothNumber = parseInt(container.getAttribute('data-tooth'));
+                    // Apply yellowing based on tooth position
+                    let toothYellowFactor = yellowIntensity;
+                    // Front teeth show more yellowing (higher numbers are more anterior)
+                    if (toothNumber === 11 || toothNumber === 21 || toothNumber === 31 || toothNumber === 41) {
+                        toothYellowFactor *= 1.2; // Incisors show more staining
+                    }
+                    // Molars get less yellowing but more decay
+                    if (toothNumber >= 16 && toothNumber <= 18 || toothNumber >= 26 && toothNumber <= 28 || 
+                        toothNumber >= 36 && toothNumber <= 38 || toothNumber >= 46 && toothNumber <= 48) {
+                        toothYellowFactor *= 0.8;
+                    }
+                    // Calculate yellow color (white to yellow/brown)
+                    const r = Math.min(255, 255 - Math.floor(100 * toothYellowFactor));
+                    const g = Math.min(255, 255 - Math.floor(70 * toothYellowFactor));
+                    const b = Math.min(255, 255 - Math.floor(30 * toothYellowFactor));
+                    const toothColor = `rgb(${r}, ${g}, ${b})`;
+                    // Apply color to tooth
+                    toothShape.setAttribute('fill', toothColor);
+                    // Apply decay spots
+                    let cavityProbability = decayIntensity;
+                    // Higher probability for molars
+                    if (toothNumber >= 16 && toothNumber <= 18 || toothNumber >= 26 && toothNumber <= 28 || 
+                        toothNumber >= 36 && toothNumber <= 38 || toothNumber >= 46 && toothNumber <= 48) {
+                        cavityProbability *= 1.5;
+                    }
+                    // Show/hide cavity spot based on probability
+                    if (Math.random() < cavityProbability && cavities > 0) {
+                        const opacity = Math.min(1, decayIntensity * 0.8 + 0.2);
+                        cavitySpot.setAttribute('fill', `rgba(139, 69, 19, ${opacity})`);
+                        cavitySpot.setAttribute('r', (3 * decayIntensity + 1).toString());
+                    } else {
+                        cavitySpot.setAttribute('fill', 'rgba(139, 69, 19, 0)');
+                    }
+                });
+            }
+
+            initBacteriaChart() {
+                this.updateBacteriaChart(3.2); // Initial start time
+
+                // Make chart clickable to simulate brushing
+                document.getElementById('chart-bacteria').addEventListener('click', () => {
+                    this.simulateBrushAction();
+                });
+            }
+
+            updateBacteriaChart(hoursSinceBrush) {
+                let x = [], y = [];
+                for(let i=0; i<=24; i++) {
+                    x.push(i);
+                    // Logistic growth model for biofilm
+                    let load = 100 * Math.pow(2, i/this.state.bacteriaDoubling);
+                    y.push(load);
+                }
+
+                const isDark = document.body.classList.contains('dark-mode');
+                const textColor = isDark ? '#eceff1' : '#263238';
+
+                Plotly.react('chart-bacteria', [{
+                    x: x, y: y,
+                    type: 'scatter', mode: 'lines',
+                    fill: 'tozeroy',
+                    line: { color: '#4db6ac' },
+                    name: 'Biofilm'
+                }, {
+                    x: [hoursSinceBrush], y: [100 * Math.pow(2, hoursSinceBrush/this.state.bacteriaDoubling)],
+                    mode: 'markers',
+                    marker: { color: '#c62828', size: 10 },
+                    name: 'Current'
+                }], {
+                    margin: { t: 10, r: 20, l: 40, b: 30 },
+                    height: 180,
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    font: { color: textColor },
+                    showlegend: false,
+                    yaxis: { type: 'log', title: 'CFU Count', gridcolor: isDark ? '#444' : '#eee' },
+                    xaxis: { title: 'Hours post-brushing', gridcolor: isDark ? '#444' : '#eee' }
+                }, { displayModeBar: false });
+
+                document.getElementById('lbl-brush-time').innerText = hoursSinceBrush.toFixed(1) + "h";
+            }
+
+            simulateBrushAction() {
+                // Visual reset
+                this.updateBacteriaChart(0.1);
+                
+                // Trigger confetti
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#4db6ac', '#00796b', '#ffffff']
+                });
+            }
+        }
+
+        // Modal Logic
+        function openModal(id) {
+            if(id === 'contact') document.getElementById('contactModal').style.display = 'flex';
+            if(id === 'report') document.getElementById('reportModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            // Refresh charts to update text colors
+            sim.runFullSimulation();
+            sim.updateBacteriaChart(3.2);
+        }
+
+        function toggleKidsMode() {
+            document.body.classList.toggle('kids-mode');
+            sim.runFullSimulation();
+            // Trigger confetti for fun entry
+            if(document.body.classList.contains('kids-mode')) sim.simulateBrushAction();
+        }
+
+        // Init
+        const sim = new DentalSimulator();
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
