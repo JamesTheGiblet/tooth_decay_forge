@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 'theme-color' is not supported by Firefox, Firefox for Android, Opera -->
     <meta name="theme-color" content="#00796b">
     <title>Generic Dentists | Preventative Care Simulator</title>
     
@@ -89,6 +90,7 @@
             font-size: 0.85rem;
             color: white;
             text-decoration: none;
+            -webkit-backdrop-filter: blur(4px);
             backdrop-filter: blur(5px);
         }
 
@@ -103,6 +105,7 @@
 
         .stat-card {
             background: rgba(255,255,255,0.1);
+            -webkit-backdrop-filter: blur(4px);
             backdrop-filter: blur(10px);
             padding: 12px;
             border-radius: var(--radius);
@@ -181,7 +184,7 @@
             background: #e0e0e0;
             border-radius: 3px;
             outline: none;
-            -webkit-appearance: none;
+            appearance: none;
         }
 
         input[type=range]::-webkit-slider-thumb {
@@ -282,6 +285,7 @@
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,30,30,0.6);
+            -webkit-backdrop-filter: blur(4px);
             backdrop-filter: blur(4px);
             z-index: 2000;
             display: none;
@@ -441,48 +445,48 @@
                         <span class="group-adult">Brushing Frequency</span><span class="group-kids">Brushing Teeth</span> 
                         <span class="control-val" id="val-brush">2x/day</span>
                     </label>
-                    <input type="range" id="rng-brush" min="0" max="3" value="2" step="1">
+                    <input type="range" id="rng-brush" min="0" max="3" value="2" step="1" title="Brushing Frequency">
                 </div>
                 <div class="control-item">
                     <label>
                         <span class="group-adult">Sugar Intake</span><span class="group-kids">Sugary Drinks</span>
                         <span class="control-val" id="val-sugar">Moderate</span>
                     </label>
-                    <input type="range" id="rng-sugar" min="0" max="4" value="2" step="1">
+                    <input type="range" id="rng-sugar" min="0" max="4" value="2" step="1" title="Sugar Intake">
                 </div>
                 <div class="control-item">
                     <label>
                         <span class="group-adult">Sweets/Snacks</span><span class="group-kids">Candy & Snacks</span>
                         <span class="control-val" id="val-sweets">Occasional</span>
                     </label>
-                    <input type="range" id="rng-sweets" min="0" max="3" value="1" step="1">
+                    <input type="range" id="rng-sweets" min="0" max="3" value="1" step="1" title="Sweets and Snacks Frequency">
                 </div>
                 <div class="control-item group-adult">
                     <label>Coffee/Tea <span class="control-val" id="val-coffee">1-2 Cups</span></label>
-                    <input type="range" id="rng-coffee" min="0" max="3" value="1" step="1">
+                    <input type="range" id="rng-coffee" min="0" max="3" value="1" step="1" title="Coffee/Tea Consumption">
                 </div>
                 <div class="control-item group-adult">
                     <label>Fluoride Usage <span class="control-val" id="val-fluoride">Yes</span></label>
-                    <input type="range" id="rng-fluoride" min="0" max="1" value="1" step="1">
+                    <input type="range" id="rng-fluoride" min="0" max="1" value="1" step="1" title="Fluoride Usage">
                 </div>
                 <div class="control-item">
                     <label>
                         <span class="group-adult">Flossing</span><span class="group-kids">Flossing</span>
                         <span class="control-val" id="val-floss">Never</span>
                     </label>
-                    <input type="range" id="rng-floss" min="0" max="2" value="0" step="1">
+                    <input type="range" id="rng-floss" min="0" max="2" value="0" step="1" title="Flossing Frequency">
                 </div>
                 <div class="control-item group-adult">
                     <label>Whitening <span class="control-val" id="val-whitening">None</span></label>
-                    <input type="range" id="rng-whitening" min="0" max="3" value="0" step="1">
+                    <input type="range" id="rng-whitening" min="0" max="3" value="0" step="1" title="Whitening">
                 </div>
                 <div class="control-item group-adult">
                     <label>Smoking <span class="control-val" id="val-smoking">No</span></label>
-                    <input type="range" id="rng-smoking" min="0" max="1" value="0" step="1">
+                    <input type="range" id="rng-smoking" min="0" max="1" value="0" step="1" aria-label="Smoking">
                 </div>
                 <div class="control-item group-adult">
                     <label>Projection (Years) <span class="control-val" id="val-time">5 Years</span></label>
-                    <input type="range" id="rng-time" min="1" max="20" value="5" step="1">
+                    <input type="range" id="rng-time" min="1" max="20" value="5" step="1" title="Projection (Years)">
                 </div>
             </div>
 
