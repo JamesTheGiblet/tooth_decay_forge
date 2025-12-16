@@ -1,56 +1,57 @@
 # ToothForge Pro 🦷
 
-**Predictive Dental Health Simulator Using Decay Kinetics**
+**Predictive Dental Health Simulator & Patient Education Tool**
 
-A real-time tooth decay and whitening fade calculator based on 
-published dental research and exponential decay models.
+A real-time tooth decay, gum health, and whitening fade calculator designed for dental professionals to demonstrate the long-term impact of patient habits.
 
 ## 🔬 Scientific Foundation
 
 Uses established decay kinetics:
-- Stephan Curve (pH recovery after meals)
-- Remineralization rates (fluoride impact)
-- Bacterial doubling times (S. mutans)
-- Whitening fade kinetics (peroxide breakdown)
 
-## ✨ Features
+- **Stephan Curve**: pH recovery modeling after meals.
+- **Biofilm Activity**: Bacterial growth modeling (S. mutans doubling times).
+- **Whitening Kinetics**: Peroxide breakdown and sensitivity risk assessment.
+- **Caries Risk Assessment**: Based on CAMBRA protocols.
 
-- **Real-time decay simulation** with pH event tracking
-- **Whitening ROI calculator** with treatment comparison
-- **Genetic modifiers** (enamel strength variants)
-- **Cost projection** over 5/10/20 year timelines
-- **Mobile-first PWA** with offline capability
-- **Export reports** as PDF with dental shade charts
+## ✨ Key Features
+
+### 🎮 Dual Interface
+
+- **Adult Mode**: Detailed clinical data, financial projections, and specific lifestyle inputs (coffee, smoking, etc.).
+- **Kids Mode**: Gamified interface with "Super Smile Score", simplified language ("Sugar Bugs"), and fun animations.
+
+### 🦷 Interactive Visualization
+
+- **Dynamic Dental Map**: Visual representation of 32 teeth showing real-time staining and cavity formation based on inputs.
+- **Biofilm Graph**: Interactive chart showing bacterial regrowth post-brushing.
+
+### 📉 Comprehensive Simulation
+
+- **Lifestyle Inputs**: Brushing frequency, sugar intake, flossing, fluoride use, and more.
+- **Financial Projection**: Estimates 10-year treatment costs vs. prevention savings.
+- **Health Metrics**: Tracks Enamel Density, Gum Health, Whiteness (Shade), and Sensitivity.
 
 ## 📊 Use Cases
 
-### For Individuals
-- Track daily pH exposure
-- Optimize brushing schedule
-- Plan whitening maintenance
-- Visualize long-term cavity risk
-
-### For Dental Practices
-- Patient education tool
-- Treatment acceptance aid
-- Prevention compliance tracking
-- Professional white-label version available
-
-## 🎯 Accuracy
-
-Based on peer-reviewed research:
-- Featherstone (2008) - The Caries Balance
-- Zero & Lussi (2005) - Erosion kinetics
-- Joiner (2006) - Tooth whitening decay rates
+- **Patient Education**: Visually demonstrate the consequences of neglect vs. care.
+- **Treatment Acceptance**: Show the financial benefit of preventative care.
+- **Pediatric Dentistry**: Engage children with the interactive "Brush Now" confetti feature.
 
 ## 🚀 Quick Start
 
-Just open the HTML file. No installation required.
+Simply open `index.html` in any modern web browser. No installation or server required.
 
-## 📄 License
+- **Libraries**: Uses Plotly.js, jsPDF, and Canvas Confetti (via CDN).
 
-Proprietary. Demo version free for personal use.
-Professional licensing available for dental practices.
+## 📄 Licensing & Contact
+
+**ToothForge Pro** is available for white-label licensing for dental practices.
+
+**Developer**: JamesTheGiblet  
+**Email**: <gibletscreations@gmail.com>  
+**Phone**: 07930 057 731
+
+*Demo version provided for evaluation purposes.*
 
 ---
 
