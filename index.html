@@ -7,10 +7,10 @@
     <meta name="theme-color" content="#00796b">
     <title>Generic Dentists | Preventative Care Simulator</title>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
-    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js" charset="utf-8" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist@2.24.1/plotly.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" crossorigin="anonymous"></script>
     
     <style>
         :root {
@@ -370,6 +370,12 @@
         .group-kids { display: none; }
         body.kids-mode .group-kids { display: block; }
         body.kids-mode .group-adult { display: none !important; }
+
+        /* Animation Utilities */
+        @keyframes pop-in { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+        .animate-pop {
+            animation: pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
     </style>
 </head>
 <body>
@@ -385,7 +391,7 @@
                     <button onclick="toggleDarkMode()" class="contact-btn-mini" style="border:none; cursor:pointer;" aria-label="Toggle Dark Mode">
                         <i class="fas fa-moon"></i>
                     </button>
-                    <button onclick="toggleKidsMode()" class="contact-btn-mini" style="border:none; cursor:pointer; background:var(--accent-gold); color:var(--text-dark);" aria-label="Toggle Kids Mode">
+                    <button id="btn-mode-toggle" onclick="toggleKidsMode()" class="contact-btn-mini" style="border:none; cursor:pointer; background:var(--accent-gold); color:var(--text-dark);" aria-label="Toggle Kids Mode">
                         <i class="fas fa-child"></i> Kids
                     </button>
                     <a href="#" onclick="openModal('contact')" class="contact-btn-mini">
@@ -634,10 +640,45 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="proModal">
+        <div class="modal-box" style="text-align:center">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div style="width:60px; height:60px; background:var(--accent-gold); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto;">
+                <i class="fas fa-crown" style="font-size:1.8rem; color:white;"></i>
+            </div>
+            <h2 style="margin-bottom:10px;">Unlock Full Version</h2>
+            <p style="color:var(--text-muted); margin-bottom:20px;">
+                Like what you see? This software is available for licensing or purchase. Contact <strong>JamesTheGiblet</strong> to deploy this for your practice.
+            </p>
+            <div style="background:rgba(0,0,0,0.03); padding:15px; border-radius:10px; margin-bottom:20px; text-align:left; font-size:0.95rem;">
+                <div style="margin-bottom:8px;"><i class="fas fa-envelope" style="color:var(--primary-teal); width:25px;"></i> <a href="mailto:gibletscreations@gmail.com" style="color:inherit; font-weight:700; text-decoration:none;">gibletscreations@gmail.com</a></div>
+                <div><i class="fas fa-phone" style="color:var(--primary-teal); width:25px;"></i> <a href="tel:07930057731" style="color:inherit; font-weight:700; text-decoration:none;">07930 057 731</a></div>
+            </div>
+            <div style="margin-bottom:20px;">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=MECARD%3AN%3AJamesTheGiblet%3BTEL%3A07930057731%3BEMAIL%3Agibletscreations%40gmail.com%3B%3B" alt="Scan to Save Contact" style="border:1px solid #eee; padding:5px; border-radius:8px;" title="Scan to add to contacts">
+                <div style="font-size:0.7rem; color:#999; margin-top:5px;">Scan to add to contacts</div>
+            </div>
+            <button class="btn btn-primary" onclick="window.location.href='mailto:gibletscreations@gmail.com?subject=Dental Simulator Inquiry'">Contact Developer</button>
+            <button class="btn btn-outline" style="margin-top:10px; border:none;" onclick="closeModal()">Back to Demo</button>
+        </div>
+    </div>
+
     <nav class="bottom-nav">
         <a href="#" class="nav-link active"><i class="fas fa-chart-pie"></i> Simulator</a>
-        <a href="#" class="nav-link"><i class="fas fa-user-md"></i> My Plan</a>
-        <a href="#" class="nav-link" onclick="openModal('contact')"><i class="fas fa-calendar-alt"></i> Book</a>
+        <a href="#" class="nav-link" onclick="openModal('pro')">
+            <div style="position:relative">
+                <i class="fas fa-user-md"></i>
+                <i class="fas fa-lock" style="position:absolute; top:-5px; right:-8px; font-size:0.6rem; color:var(--accent-gold); background:var(--card-bg); border-radius:50%; padding:2px;"></i>
+            </div>
+            My Plan
+        </a>
+        <a href="#" class="nav-link" onclick="openModal('pro')">
+            <div style="position:relative">
+                <i class="fas fa-calendar-alt"></i>
+                <i class="fas fa-lock" style="position:absolute; top:-5px; right:-8px; font-size:0.6rem; color:var(--accent-gold); background:var(--card-bg); border-radius:50%; padding:2px;"></i>
+            </div>
+            Book
+        </a>
     </nav>
 
     <script>
@@ -825,7 +866,7 @@
                 document.getElementById('disp-enamel').innerText = Math.round(data.finalHealth) + "%";
                 
                 // Est Cavities
-                const cavities = Math.max(0, Math.floor((90 - data.finalHealth) / 15));
+                const cavities = Math.max(0, Math.floor((92 - data.finalHealth) / 10));
                 document.getElementById('disp-cavities').innerText = cavities;
                 document.getElementById('disp-cavities').style.color = cavities > 0 ? "var(--danger-red)" : "var(--text-dark)";
 
@@ -936,7 +977,7 @@
                     xaxis: { title: 'Months', gridcolor: isDark ? '#444' : '#eee' },
                     yaxis: { range: [0, 100], title: 'Health %', gridcolor: isDark ? '#444' : '#eee' },
                     yaxis2: { overlaying: 'y', side: 'right', range: [0, 100], showgrid: false, tickfont: { color: '#c62828' } }
-                }, { displayModeBar: false });
+                }, { displayModeBar: false, responsive: true });
 
                 // --- Oral Health Visualization Logic ---
                 this.state.enamel = data.finalHealth;
@@ -964,7 +1005,7 @@
 
             // Add this method to your DentalSimulator class
             updateTeethVisualization() {
-                const cavities = Math.max(0, Math.floor((90 - this.state.enamel) / 15));
+                const cavities = Math.max(0, Math.floor((92 - this.state.enamel) / 10));
                 const whitenessScore = this.state.whiteningScore || 60;
                 // Calculate yellowing intensity (0-1)
                 const yellowIntensity = Math.max(0, 1 - (whitenessScore / 100));
@@ -1011,9 +1052,10 @@
                         toothYellowFactor *= 0.8;
                     }
                     // Calculate yellow color (white to yellow/brown)
-                    const r = Math.min(255, 255 - Math.floor(100 * toothYellowFactor));
-                    const g = Math.min(255, 255 - Math.floor(70 * toothYellowFactor));
-                    const b = Math.min(255, 255 - Math.floor(30 * toothYellowFactor));
+                    // Reduce Blue significantly to create yellow, reduce Green slightly for warmth
+                    const r = 255 - Math.floor(20 * toothYellowFactor);
+                    const g = 255 - Math.floor(50 * toothYellowFactor);
+                    const b = 255 - Math.floor(180 * toothYellowFactor);
                     const toothColor = `rgb(${r}, ${g}, ${b})`;
                     // Apply color to tooth
                     toothShape.setAttribute('fill', toothColor);
@@ -1076,7 +1118,7 @@
                     showlegend: false,
                     yaxis: { type: 'log', title: 'CFU Count', gridcolor: isDark ? '#444' : '#eee' },
                     xaxis: { title: 'Hours post-brushing', gridcolor: isDark ? '#444' : '#eee' }
-                }, { displayModeBar: false });
+                }, { displayModeBar: false, responsive: true });
 
                 document.getElementById('lbl-brush-time').innerText = hoursSinceBrush.toFixed(1) + "h";
             }
@@ -1099,6 +1141,7 @@
         function openModal(id) {
             if(id === 'contact') document.getElementById('contactModal').style.display = 'flex';
             if(id === 'report') document.getElementById('reportModal').style.display = 'flex';
+            if(id === 'pro') document.getElementById('proModal').style.display = 'flex';
         }
         function closeModal() {
             document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
@@ -1113,9 +1156,21 @@
 
         function toggleKidsMode() {
             document.body.classList.toggle('kids-mode');
+            const btn = document.getElementById('btn-mode-toggle');
+            const isKids = document.body.classList.contains('kids-mode');
+            
+            // Trigger animation
+            btn.classList.remove('animate-pop');
+            void btn.offsetWidth; // trigger reflow
+            btn.classList.add('animate-pop');
+
+            if (isKids) {
+                btn.innerHTML = '<i class="fas fa-user"></i> Adults';
+                sim.simulateBrushAction();
+            } else {
+                btn.innerHTML = '<i class="fas fa-child"></i> Kids';
+            }
             sim.runFullSimulation();
-            // Trigger confetti for fun entry
-            if(document.body.classList.contains('kids-mode')) sim.simulateBrushAction();
         }
 
         // Init
